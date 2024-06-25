@@ -1,4 +1,4 @@
-senaclinsenaclinsenabooksCREATE DATABASE IF NOT EXISTS senabooks
+CREATE DATABASE IF NOT EXISTS novaclin
 CREATE TABLE Medico (
 idMedico INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 nomeMedico VARCHAR(50) NOT NULL,
@@ -95,8 +95,91 @@ VALUES ('Pitas','14275397395','2006-07-31 18:00','pedropita70@gmail.com','A+','s
 
 INSERT INTO consulta
 (idMedico, idPaciente, idRecepcionista, dataHoraConsulta, tipoConsulta)
-VALUES
+VALUESsenaclin
 (1,1,1,'2024-06-24 18:30',0)
 
 DELETE FROM paciente 
 WHERE idPaciente=3
+
+INSERT INTO paciente (nome, cpf, dataNascimento, tipoSanguineo)
+VALUES
+('Magali','55566677799','2001-07-07 06:55:00','0+'),
+('Monica','44466677799','2002-01-07 06:55:00','0+'),
+('Cascao','33366677799','2003-02-07 06:55:00','B+'),
+('Penadinho','22266677799','2004-04-07 06:55:00','A+');
+
+SELECT tipoSanguineo COUNT(idPaciente) AS 'Total Paciente' FROM paciente
+ORDER BY COUNT tipoSanguineo
+GROUP BY tipoSanguineo DESC
+
+/* Traga o nome do médico, o crm e a data da consulta marcada 
+para ele levando em conta todos os médicos que possuem 
+consultas */
+SELECT nome, crm, datahoraConsulta FROM medico
+INNER JOIN consulta
+ON medico.idMedico = consulta.idMedico
+INNER JOIN paciente
+ON consulta.idPaciente = paciente.idPaciente;
+
+SELECT * FROM consulta;
+SELECT * FROM medico;
+SELECT * FROM paciente;
+
+/*A -criar uma querry que traga o nome do recepcionista, o celular dele, e a data de consulta que ele marcou*/
+ 
+SELECT nomeRecepcionista,celular,dataHoraConsulta FROM recepcionista
+INNER JOIN consulta
+ON recepcionista.idRecepcionista=consulta.idRecepcionista
+ 
+/*B - criar uma query que traga o nome do paciente, seu documento, o nome do médico, o crm, a data da consulta e o recepcionista que a marcou*/
+SELECT 
+paciente.nome AS Nome_Paciente,
+paciente.cpf AS Documento_Paciente,
+medico.nomeMedico AS Nome_Médico,
+medico.crm AS CRM_Médico,
+consulta.dataHoraConsulta AS Data_Consulta,
+recepcionista.nomeRecepcionista AS Nome_Recepcionista
+FROM consulta
+INNER JOIN paciente ON consulta.idPaciente = paciente.idPaciente
+INNER JOIN medico ON consulta.idMedico = medico.idMedico
+INNER JOIN recepcionista ON consulta.idRecepcionista = recepcionista.idRecepcionista;
+ 
+/*C - Criar uma query que traga quantas consultas existem 
+na clínica */
+SELECT COUNT(*) AS Quantidade_de_Consultas
+FROM consulta;
+ 
+/*D - Criar uma query que traga o nome do paciente, o email,
+o tipo sanguineo e a data de suas consultas
+mas somente dos pacientes que possuem email*/
+SELECT 
+paciente.nome AS Nome_Paciente,
+paciente.email AS Email_Paciente,
+paciente.tipoSanguineo AS Tipo_Sanguineo,
+consulta.dataHoraConsulta AS Data_Consulta
+FROM paciente
+INNER JOIN consulta ON paciente.idPaciente = consulta.idPaciente
+WHERE paciente.email IS NOT NULL AND paciente.email <> ''
+ORDER BY paciente.nome, consulta.dataHoraConsulta;
+ 
+/*E - Criar uma query que traga o nome de TODOS OS paciente, 
+o nome do médico, a data da consulta
+independente de os pacientes possuírem consultas */
+ 
+SELECT 
+paciente.nome AS Nome_Paciente,
+medico.nomeMedico AS Nome_Médico,
+consulta.dataHoraConsulta AS Data_Consulta
+FROM paciente
+LEFT JOIN consulta ON paciente.idPaciente = consulta.idPaciente
+LEFT JOIN medico ON consulta.idMedico = medico.idMedico
+ORDER BY paciente.nome, consulta.dataHoraConsulta;
+
+
+/*Desafio Final - Trazer a quantidade de consultas que possuo na clínica agrupada por tipo sanguíneo do paciente */
+
+SELECT COUNT(consulta.idPaciente) AS 'td Consulta',
+tipoSanguineo AS 'Tipo Sangue' FROM paciente
+INNER JOIN consulta ON paciente.idPaciente = consulta.idPaciente 
+GROUP BY tipoSanguineo
+
